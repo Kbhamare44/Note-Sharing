@@ -1,0 +1,48 @@
+const notesList = document.getElementById('notes-list');
+const noteForm = document.querySelector('form');
+
+// Function to display all the notes
+function displayNotes(notes) {
+   notesList.innerHTML = '';
+   notes.forEach(function(note) {
+      const li = document.createElement('li');
+      const title = document.createElement('h3');
+      title.textContent = note.title;
+      const content = document.createElement('p');
+      content.textContent = note.content;
+      li.appendChild(title);
+      li.appendChild(content);
+      notesList.appendChild(li);
+   });
+}
+
+// Function to get all the notes from the database
+async function getNotes() {
+   const response = await fetch('/notes');
+   const notes = await response.json();
+   displayNotes(notes);
+}
+
+// Function to add a new note to the database
+async function addNote(note) {
+   const response = await fetch('/notes', {
+      method: 'POST',
+      headers: {
+         'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(note)
+   });
+   const newNote = await response.json();
+   displayNotes([newNote]);
+}
+
+noteForm.addEventListener('submit', function(event) {
+   event.preventDefault();
+   const title = noteForm.elements['note-title'].value;
+   const content = noteForm.elements['note-content'].value;
+   const note = { title: title, content: content };
+   addNote(note);
+   noteForm.reset();
+});
+
+getNotes();
